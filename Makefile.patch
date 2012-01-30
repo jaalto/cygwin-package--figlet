@@ -1,0 +1,71 @@
+diff -r 60dec163d486 Makefile
+--- a/Makefile	Wed Aug 08 16:15:48 2007 +0300
++++ b/Makefile	Tue Aug 14 00:11:06 2007 +0300
+@@ -37,6 +37,32 @@ DEFAULTFONTFILE = standard.flf
+ 
+ SOURCES = figlet.c zipio.c crc.c inflate.c
+ 
++DESTDIR		=
++prefix		= /usr
++exec_prefix	= $(prefix)
++man_prefix	= $(prefix)/shar
++
++PACKAGE		= figlet
++INSTALL		= /usr/bin/install
++INSTALL_BIN	= $(INSTALL) -m 755
++INSTALL_SUID    = $(INSTALL) -m 4755
++INSTALL_DATA	= $(INSTALL) -m 644
++
++INSTALL_OBJS_BIN   = $(PACKAGE) chkfont
++INSTALL_OBJS_BIN2  = showfigfonts  # shell file
++INSTALL_OBJS_MAN   = *.6
++INSTALL_OBJS_SHARE =
++
++MANDIR		= $(DESTDIR)$(man_prefix)/man/man6
++BINDIR		= $(DESTDIR)$(exec_prefix)/bin
++SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
++ETCDIR		= $(DESTDIR)$/etc/$(PACKAGE)
++SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
++LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
++
++DEFAULTFONTDIR  = $(prefix)/share/$(PACKAGE)
++FONTDIR		= $(DESTDIR)$(DEFAULTFONTDIR)
++
+ all: figlet chkfont
+ 
+ figlet: $(SOURCES)
+@@ -49,9 +75,9 @@ chkfont: chkfont.c
+ 	$(CC) $(CFLAGS) -o chkfont chkfont.c
+ 
+ clean:
+-	rm -f *.o figlet chkfont
++	rm -f *.o figlet chkfont *.exe
+ 
+-install: figlet chkfont
++install-old: figlet chkfont
+ 	mkdir -p $(DEFAULTFONTDIR)
+ 	cp figlet $(DESTDIR)
+ 	cp figlet.6 $(MANDIR)
+@@ -60,3 +86,22 @@ install: figlet chkfont
+ 	cp showfigfonts $(DESTDIR)
+ 	cp fonts/*.flf $(DEFAULTFONTDIR)
+ 	cp fonts/*.flc $(DEFAULTFONTDIR)
++
++install-man:
++	# install manual
++	$(INSTALL_BIN) -d $(MANDIR)
++	$(INSTALL_DATA) $(INSTALL_OBJS_MAN) $(MANDIR)
++
++install-bin:
++	$(INSTALL_BIN) -d $(BINDIR)
++	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
++
++	# install shell files
++	$(INSTALL_BIN) $(INSTALL_OBJS_BIN2) $(BINDIR)
++
++install-font:
++	# install fonts
++	$(INSTALL_BIN) -d $(FONTDIR)
++	$(INSTALL_DATA) fonts/*.fl[cf] $(FONTDIR)
++
++install: $(PACKAGE) install-bin install-font install-man
